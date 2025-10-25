@@ -10,7 +10,7 @@
 #include <GL/gl.h>
 #endif
 
-// Vertex shader với Phong lighting
+// Vertex shader with Phong lighting
 const char* vertexShaderSource = R"(
 #version 410 core
 layout (location = 0) in vec3 aPos;
@@ -31,7 +31,7 @@ void main()
 }
 )";
 
-// Fragment shader với Phong lighting model
+// Fragment shader with Phong lighting model
 const char* fragmentShaderSource = R"(
 #version 410 core
 out vec4 FragColor;
@@ -40,37 +40,41 @@ in vec3 FragPos;
 in vec3 Normal;
 
 uniform vec3 lightPos;
-uniform vec3 viewPos;
-uniform vec3 lightColor;
+uniform vec3 viewPos;    
+uniform vec3 lightColor; 
 uniform vec3 objectColor;
 
 void main()
 {
-    // Ambient
+    // Ambient represents a base level of uniform illumination that prevents surfaces from appearing completely dark, regardless of direct light sources
+    // Ambient strength is a value that controls the intensity of the ambient light component
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * lightColor;
 
-    // Diffuse 
+    // Diffuse reflection simulates how light scatters off a rough, matte surface, creating an even appearance
+    // D = Kd * I * dot product of N and L 
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
 
-    // Specular
+    // Specular refers to the component that simulates the bright, shiny highlights on a surface
+    // Specular term = Ks * (dot product of R and V) ^ ns
     float specularStrength = 0.5;
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
+    // Phong Shading = Ambient + Diffuse + Specular Light
     vec3 result = (ambient + diffuse + specular) * objectColor;
     FragColor = vec4(result, 1.0);
 }
 )";
 
-// Cube data với normals
+// Cube data with normals
 float vertices[] = {
-    // Positions          // Normals
+    // Positions        // Normals
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -181,7 +185,7 @@ void setupBuffers() {
     glEnableVertexAttribArray(1);
 }
 
-// Hàm tạo ma trận perspective
+// Matrice function for perspective
 void setPerspective(float fov, float aspect, float near, float far, float* matrix) {
     float tanHalfFov = tan(fov / 2.0f);
     
@@ -206,7 +210,7 @@ void setPerspective(float fov, float aspect, float near, float far, float* matri
     matrix[15] = 0.0f;
 }
 
-// Hàm tạo ma trận lookAt
+// Matrice function for lookAt
 void setLookAt(float* eye, float* center, float* up, float* matrix) {
     float f[3] = {
         center[0] - eye[0],
@@ -263,7 +267,7 @@ int main() {
         return -1;
     }
     
-    // Sử dụng OpenGL 4.1 core profile
+    // Using OpenGL 4.1 core profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -282,7 +286,7 @@ int main() {
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     
-    // Tạo shader program và buffers
+    // Create shader program và buffers
     createShaderProgram();
     setupBuffers();
     
